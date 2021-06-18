@@ -1,0 +1,8 @@
+{
+  "name": "Simple-Docs",
+  "version": "1.0.0",
+  "description": "A simple Adobe plugin that shows you all of the documentation to any installed plugins",
+  "main": "index.js",
+  "author": "bootsie123",
+  "license": "ISC"
+}
