@@ -1,0 +1,24 @@
+{
+  "id": "com.bootsie123.simple-docs",
+  "name": "Simple Docs",
+  "version": "1.0.0",
+  "main": "index.html",
+  "manifestVersion": 4,
+  "host": {
+    "app": "PS",
+    "minVersion": "22.0.0"
+  },
+  "entrypoints": [
+    {
+      "type": "panel",
+      "id": "simpleDocs",
+      "label": {
+        "default": "Simple Docs"
+      },
+      "minimumSize": { "width": 230, "height": 200 },
+      "maximumSize": { "width": 2000, "height": 2000 },
+      "preferredDockedSize": { "width": 230, "height": 300 },
+      "preferredFloatingSize": { "width": 230, "height": 300 }
+    }
+  ]
+}

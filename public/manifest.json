@@ -11,9 +11,9 @@
   "entrypoints": [
     {
       "type": "panel",
-      "id": "helloworld",
+      "id": "simpleDocs",
       "label": {
-        "default": "Hello World"
+        "default": "Simple Docs"
       },
       "minimumSize": { "width": 230, "height": 200 },
       "maximumSize": { "width": 2000, "height": 2000 },
