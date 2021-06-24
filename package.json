@@ -1,5 +1,5 @@
 {
-  "name": "Simple-Docs",
+  "name": "UXP-Plugin-Info",
   "version": "1.0.0",
   "description": "A simple Adobe plugin that shows you all of the documentation to any installed plugins",
   "main": "./src/main.js",
@@ -13,6 +13,7 @@
   "license": "ISC",
   "dependencies": {
     "core-js": "^3.6.5",
+    "filesize": "^6.3.0",
     "vue": "^2.6.11"
   },
   "devDependencies": {

@@ -8,7 +8,7 @@ Vue.config.ignoredElements = ["sp-icon"];
 
 entrypoints.setup({
   panels: {
-    simpleDocs: {
+    uxpPluginInfo: {
       show() {
         new Vue({
           render: h => h(App)

@@ -1,6 +1,6 @@
 {
-  "id": "com.bootsie123.simple-docs",
-  "name": "Simple Docs",
+  "id": "com.bootsie123.uxp-plugin-info",
+  "name": "UXP Plugin Info",
   "version": "1.0.0",
   "main": "index.html",
   "manifestVersion": 4,
@@ -11,9 +11,9 @@
   "entrypoints": [
     {
       "type": "panel",
-      "id": "simpleDocs",
+      "id": "uxpPluginInfo",
       "label": {
-        "default": "Simple Docs"
+        "default": "UXP Plugin Info"
       },
       "minimumSize": { "width": 230, "height": 200 },
       "maximumSize": { "width": 2000, "height": 2000 },
