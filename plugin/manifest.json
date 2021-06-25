@@ -1,5 +1,5 @@
 {
-  "id": "com.bootsie123.uxp-plugin-info",
+  "id": "565c3d601",
   "name": "UXP Plugin Info",
   "version": "1.0.0",
   "main": "index.html",
@@ -18,7 +18,39 @@
       "minimumSize": { "width": 230, "height": 200 },
       "maximumSize": { "width": 2000, "height": 2000 },
       "preferredDockedSize": { "width": 230, "height": 300 },
-      "preferredFloatingSize": { "width": 230, "height": 300 }
+      "preferredFloatingSize": { "width": 230, "height": 300 },
+      "icons": [
+        {
+          "width": 24,
+          "height": 24,
+          "path": "icons/dark.png",
+          "scale": [1, 2, 3, 4, 5],
+          "theme": ["darkest", "dark", "medium"]
+        },
+        {
+          "width": 24,
+          "height": 24,
+          "path": "icons/light.png",
+          "scale": [1, 2, 3, 4, 5],
+          "theme": ["lightest", "light"]
+        }
+      ]
+    }
+  ],
+  "icons": [
+    {
+      "width": 24,
+      "height": 24,
+      "path": "icons/dark.png",
+      "scale": [1, 2, 3, 4, 5],
+      "theme": ["darkest", "dark", "medium"]
+    },
+    {
+      "width": 24,
+      "height": 24,
+      "path": "icons/light.png",
+      "scale": [1, 2, 3, 4, 5],
+      "theme": ["lightest", "light"]
     }
   ]
 }

@@ -84,7 +84,15 @@
           }
         });
 
-        this.plugins = (await Promise.all(plugins)).filter(plugin => plugin);
+        /*let app;
+
+        if (host.name === "Photoshop") {
+          app = "PS";
+        } else {
+
+        }*/
+
+        this.plugins = (await Promise.all(plugins)).filter(plugin => plugin?.manifest?.host?.app === "PS");
       }
     }
   };
