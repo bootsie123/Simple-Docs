@@ -1,13 +1,16 @@
 <template>
   <div id="app">
-    <div v-if="plugins.length < 1" class="container">
-      <sp-heading class="heading" size="L">UXP Plugin Info</sp-heading>
-      <sp-divider class="divider"></sp-divider>
-      <sp-detail>Welcome to UXP Plugin Info! Locate your plugin directory to get started!</sp-detail>
-      <sp-button class="button" @click="start">{{ pluginToken ? "Continue" : "Load Plugins" }}</sp-button>
-      <sp-button v-if="pluginToken" class="button" size="xxs" variant="secondary" @click="promptPluginDir" quiet>
-        Reload Plugins
-      </sp-button>
+    <div v-if="plugins.length < 1 || setup" class="container">
+      <Setup v-if="setup" @setupComplete="setupComplete" />
+      <template v-else>
+        <sp-heading class="heading" size="L">Plugin Info</sp-heading>
+        <sp-divider class="divider"></sp-divider>
+        <sp-detail>Welcome to Plugin Info! Locate your plugin directories to get started!</sp-detail>
+        <sp-button class="button" @click="start">{{ hasToken ? "Continue" : "Load Plugins" }}</sp-button>
+        <sp-button v-if="hasToken" class="button" size="xxs" variant="secondary" @click="setup = true" quiet>
+          Reload Plugins
+        </sp-button>
+      </template>
     </div>
     <div v-else class="list">
       <Plugin v-for="(plugin, i) in plugins" :key="i" :plugin="plugin" />
@@ -16,83 +19,83 @@
 </template>
 
 <script>
-  import Plugin from "@/components/Plugin";
   import { storage } from "uxp";
+  import utils from "@/lib/utils";
+
+  import Plugin from "@/components/Plugin";
+  import Setup from "@/components/Setup";
 
   const fs = storage.localFileSystem;
 
   export default {
     name: "App",
     components: {
-      Plugin
+      Plugin,
+      Setup
     },
     data() {
       return {
+        setup: false,
         plugins: [],
-        pluginToken: localStorage.getItem("pluginToken")
+        uxpToken: localStorage.getItem("uxpToken"),
+        cepToken: localStorage.getItem("cepToken")
       };
     },
+    computed: {
+      hasToken() {
+        return this.uxpToken || this.cepToken;
+      }
+    },
     methods: {
-      async start() {
-        if (this.pluginToken) {
-          try {
-            const pluginDir = await fs.getEntryForPersistentToken(this.pluginToken);
+      start() {
+        if (this.hasToken) {
+          this.loadPlugins();
+        } else {
+          this.setup = true;
+        }
+      },
+      setupComplete(tokens) {
+        this.uxpToken = tokens.uxpToken;
+        this.cepToken = tokens.cepToken;
 
-            this.loadPlugins(pluginDir);
+        this.setup = false;
+
+        this.loadPlugins();
+      },
+      async loadPlugins() {
+        this.plugins = [];
+
+        if (this.uxpToken) {
+          try {
+            const uxpDir = await fs.getEntryForPersistentToken(this.uxpToken);
+
+            this.plugins = this.plugins.concat(await utils.loadPlugins(uxpDir, "uxp"));
           } catch (err) {
             console.error(err);
 
-            this.promptPluginDir();
+            this.uxpToken = "";
+
+            localStorage.setItem("uxpToken", "");
           }
-        } else {
-          this.promptPluginDir();
         }
-      },
-      async promptPluginDir() {
-        const pluginDir = await fs.getFolder();
 
-        if (pluginDir) {
-          this.pluginToken = await fs.createPersistentToken(pluginDir);
-
-          localStorage.setItem("pluginToken", this.pluginToken);
-
-          this.loadPlugins(pluginDir);
-        }
-      },
-      async loadPlugins(pluginDir) {
-        const plugins = (await pluginDir.getEntries()).map(async plugin => {
-          if (!plugin.isFolder) return false;
-
-          const manifest = (await plugin.getEntries()).find(entry => entry.name === "manifest.json");
-
-          if (!manifest) return false;
-
+        if (this.cepToken) {
           try {
-            const json = JSON.parse(await manifest.read());
+            const cepDir = await fs.getEntryForPersistentToken(this.cepToken);
 
-            return {
-              id: json.id,
-              name: json.name,
-              version: json.version,
-              manifest: json,
-              folder: plugin
-            };
+            this.plugins = this.plugins.concat(await utils.loadPlugins(cepDir, "cep"));
           } catch (err) {
             console.error(err);
 
-            return false;
+            this.cepToken = "";
+
+            localStorage.setItem("cepToken", "");
           }
-        });
+        }
 
-        /*let app;
-
-        if (host.name === "Photoshop") {
-          app = "PS";
-        } else {
-
-        }*/
-
-        this.plugins = (await Promise.all(plugins)).filter(plugin => plugin?.manifest?.host?.app === "PS");
+        if (!this.uxpToken && !this.cepToken) {
+          this.setup = true;
+        }
       }
     }
   };

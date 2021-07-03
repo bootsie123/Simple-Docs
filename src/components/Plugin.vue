@@ -8,20 +8,22 @@
     </div>
     <div v-if="dropdown" class="dropdown">
       <sp-divider class="dropdownDivider"></sp-divider>
-      <Carousel :images="media" />
+      <Carousel v-if="plugin.type === 'uxp'" :images="media" />
       <Level :list="topInfo" />
-      <Section label="INFO" :text="latestVersion.localizedMetadata[0].values.description" />
-      <Section label="WHAT'S NEW" :text="latestVersion.localizedMetadata[0].values.releaseNotes" />
-      <Section label="CATEGORIES">
-        <TagList :tags="categories" v-slot="{ tag }">
-          {{ tag.name }}
-        </TagList>
-      </Section>
-      <Section label="TAGS">
-        <TagList :tags="storeInfo.localizedMetadata[0].values.keywords" v-slot="{ tag }">
-          {{ tag }}
-        </TagList>
-      </Section>
+      <template v-if="plugin.type === 'uxp'">
+        <Section label="INFO" :text="latestVersion.localizedMetadata[0].values.description" />
+        <Section label="WHAT'S NEW" :text="latestVersion.localizedMetadata[0].values.releaseNotes" />
+        <Section label="CATEGORIES">
+          <TagList :tags="categories" v-slot="{ tag }">
+            {{ tag.name }}
+          </TagList>
+        </Section>
+        <Section label="TAGS">
+          <TagList :tags="storeInfo.localizedMetadata[0].values.keywords" v-slot="{ tag }">
+            {{ tag }}
+          </TagList>
+        </Section>
+      </template>
     </div>
   </div>
 </template>
@@ -55,28 +57,99 @@
         storeCategories: {}
       };
     },
+    computed: {
+      latestVersion() {
+        return this.storeInfo.versions[this.storeInfo.versions.length - 1];
+      },
+      categories() {
+        return this.storeInfo.appTags.map(tag => {
+          return this.storeCategories.find(category => category.id === tag.id);
+        });
+      },
+      topInfo() {
+        let data = [];
+
+        if (this.plugin.type === "uxp") {
+          data = [
+            {
+              text: "Author",
+              value: this.storeInfo.publisher.name
+            },
+            {
+              text: "Version",
+              value: `${this.latestVersion.version} (installed ${this.plugin.version})`
+            },
+            {
+              text: "Type",
+              value: "UXP"
+            },
+            {
+              text: "Size",
+              value: filesize(this.latestVersion.packageSize)
+            }
+          ];
+        } else if (this.plugin.type === "cep") {
+          data = [
+            {
+              text: "Version",
+              value: this.plugin.version
+            },
+            {
+              text: "Type",
+              value: "CEP"
+            }
+          ];
+        }
+
+        return data;
+      },
+      media() {
+        return this.latestVersion.media.map(media => media.image.link);
+      }
+    },
     async mounted() {
-      const icons = this.plugin.manifest.icons;
+      if (this.plugin.type === "uxp") {
+        const icons = this.plugin.manifest.icons;
 
-      if (icons) {
-        for (const icon of icons) {
-          const iconPath = icon.path.split(".");
+        if (icons) {
+          for (const icon of icons) {
+            const src = await this.getImage(icon.path, "uxp");
 
-          const entry = await this.plugin.folder.getEntry(iconPath[0] + "@1x." + iconPath[1]);
-          const file = await entry.read({ format: uxp.storage.formats.binary });
-
-          const src = `data:image/${iconPath[1]};base64,` + Buffer.from(file).toString("base64");
-
-          if (icon.theme.includes("light")) {
-            this.iconLight = src;
-          } else if (icon.theme.includes("dark")) {
-            this.iconDark = src;
+            if (icon.theme.includes("light")) {
+              this.iconLight = src;
+            } else if (icon.theme.includes("dark")) {
+              this.iconDark = src;
+            }
           }
         }
-      }
 
-      this.getPluginInfo(this.plugin.manifest.id);
-      this.getCategories();
+        this.getPluginInfo(this.plugin.manifest.id);
+        this.getCategories();
+      } else if (this.plugin.type === "cep") {
+        const iconTags = this.plugin.manifest.dom.documentElement.getElementsByTagName("Icon");
+
+        const icons = [];
+
+        for (let i = 0; i < iconTags.length; i++) {
+          const icon = iconTags.item(i);
+
+          icons.push({
+            type: icon.attributes.getNamedItem("Type").value,
+            path: icon.firstChild.data
+          });
+        }
+
+        const normal = icons.find(icon => icon.type === "Normal");
+        const darkNormal = icons.find(icon => icon.type === "DarkNormal");
+
+        if (normal) {
+          this.iconLight = await this.getImage(normal.path, "cep");
+        }
+
+        if (darkNormal) {
+          this.iconDark = await this.getImage(darkNormal.path, "cep");
+        }
+      }
     },
     methods: {
       toggleDropdown() {
@@ -95,35 +168,25 @@
           .then(data => {
             this.storeCategories = data.categories;
           });
-      }
-    },
-    computed: {
-      latestVersion() {
-        return this.storeInfo.versions[this.storeInfo.versions.length - 1];
       },
-      categories() {
-        return this.storeInfo.appTags.map(tag => {
-          return this.storeCategories.find(category => category.id === tag.id);
-        });
-      },
-      topInfo() {
-        return [
-          {
-            text: "Author",
-            value: this.storeInfo.publisher.name
-          },
-          {
-            text: "Version",
-            value: `${this.latestVersion.version} (installed ${this.plugin.manifest.version})`
-          },
-          {
-            text: "Size",
-            value: filesize(this.latestVersion.packageSize)
-          }
-        ];
-      },
-      media() {
-        return this.latestVersion.media.map(media => media.image.link);
+      async getImage(path, type) {
+        const iconPath = path.split(/(\.)/);
+        const extension = iconPath.pop();
+
+        iconPath.pop();
+
+        try {
+          const entry = await this.plugin.folder.getEntry(
+            iconPath.join("") + (type === "uxp" ? "@1x." : ".") + extension
+          );
+          const file = await entry.read({ format: uxp.storage.formats.binary });
+
+          return `data:image/${extension};base64,` + Buffer.from(file).toString("base64");
+        } catch (err) {
+          console.error(err);
+
+          return "";
+        }
       }
     }
   };
