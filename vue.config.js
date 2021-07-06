@@ -11,7 +11,8 @@ module.exports = {
   chainWebpack: config => {
     config.externals({
       ...config.get("externals"),
-      uxp: "commonjs2 uxp"
+      uxp: "commonjs2 uxp",
+      os: "commonjs2 os"
     });
   }
 };

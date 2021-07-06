@@ -1,7 +1,7 @@
 {
   "name": "UXP-Plugin-Info",
   "version": "1.0.0",
-  "description": "A simple Adobe plugin that shows you all of the documentation to any installed plugins",
+  "description": "A simple Adobe plugin that shows you the store info for any installed UXP plugins",
   "main": "./src/main.js",
   "private": true,
   "scripts": {

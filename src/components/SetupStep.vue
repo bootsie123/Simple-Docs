@@ -12,7 +12,7 @@
     <sp-divider class="divider"></sp-divider>
     <sp-body>
       {{ label }}
-      <span class="highlight">{{ labelHighlight }}</span>
+      <span class="highlight">{{ labelHighlight || ". . ." }}</span>
     </sp-body>
     <sp-button class="button" variant="primary" @click="$emit('click', $event)">Select Directory</sp-button>
   </div>

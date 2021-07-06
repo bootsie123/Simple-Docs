@@ -21,10 +21,10 @@ entrypoints.setup({
   commands: {
     clearData() {
       localStorage.clear();
+
+      window.location.reload();
     },
     showSetup() {
-      console.log(VueApp);
-
       VueApp.$children[0].setup = true;
     }
   }

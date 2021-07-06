@@ -2,15 +2,15 @@
   <div class="stepContainer">
     <SetupStep
       title="Select your UXP plugin directory"
-      label="On Windows this is usually "
-      labelHighlight="%appdata%\Adobe\UXP\Plugins\External"
+      :label="osLabel"
+      :labelHighlight="uxpPathLabel"
       @click="promptPluginDir('uxp')"
       :success="uxpToken.length > 0"
     />
     <SetupStep
       title="Select your CEP plugin directory"
-      label="On Windows this is usually "
-      labelHighlight="C:\Program Files (x86)\Common Files\Adobe\CEP\extensions"
+      :label="osLabel"
+      :labelHighlight="cepPathLabel"
       @click="promptPluginDir('cep')"
       :success="cepToken.length > 0"
     />
@@ -36,9 +36,30 @@
       SetupStep
     },
     data() {
+      const platform = require("os").platform();
+
+      const osMap = {
+        win32: "Windows",
+        darwin: "macOS"
+      };
+
+      const pathMap = {
+        win32: {
+          uxp: "%appdata%\\Adobe\\UXP\\Plugins\\External",
+          cep: "C:\\Program Files (x86)\\Common Files\\Adobe\\CEP\\extensions"
+        },
+        darwin: {
+          uxp: "/Library/Application Support/Adobe/UXP/extensions",
+          cep: "/Library/Application Support/Adobe/CEP/extensions"
+        }
+      };
+
       return {
         uxpToken: localStorage.getItem("uxpToken") || "",
-        cepToken: localStorage.getItem("cepToken") || ""
+        cepToken: localStorage.getItem("cepToken") || "",
+        osLabel: `On ${osMap[platform]} this is usually`,
+        uxpPathLabel: pathMap[platform]?.uxp,
+        cepPathLabel: pathMap[platform]?.cep
       };
     },
     methods: {
