@@ -2,7 +2,7 @@
 
 [![GitHub](https://img.shields.io/github/license/bootsie123/UXP-Plugin-Info)](https://github.com/bootsie123/UXP-Plugin-Info/blob/master/LICENSE)
 
-A simple Adobe plugin that shows you the store info for any installed UXP plugins
+A simple Adobe plugin that shows you the store info for any installed plugins
 
 ## Installation
 
