@@ -49,7 +49,7 @@
           cep: "C:\\Program Files (x86)\\Common Files\\Adobe\\CEP\\extensions"
         },
         darwin: {
-          uxp: "/Library/Application Support/Adobe/UXP/extensions",
+          uxp: "~/Library/Application Support/Adobe/UXP/Plugins",
           cep: "/Library/Application Support/Adobe/CEP/extensions"
         }
       };
