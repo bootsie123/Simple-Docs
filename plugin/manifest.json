@@ -4,11 +4,17 @@
   "version": "1.0.0",
   "main": "index.html",
   "manifestVersion": 4,
-  "host": {
-    "app": "PS",
-    "minVersion": "22.0.0"
-  },
-  "entrypoints": [
+  "host": [
+    {
+      "app": "PS",
+      "minVersion": "22.0.0"
+    },
+    {
+      "app": "XD",
+      "minVersion": "36.0.0"
+    }
+  ],
+  "entryPoints": [
     {
       "type": "command",
       "id": "showSetup",
